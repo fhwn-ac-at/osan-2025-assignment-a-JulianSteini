@@ -15,13 +15,13 @@
 // Structure for message
 struct message
 {
-    int type;
+    int type; // 1 = Task, 2 = Result
 
     union
     {
         struct
         {
-            int effort; // 1–10, or 0 as termination indicator
+            int effort;
         } task;
 
         struct
@@ -91,7 +91,7 @@ void worker_function(int worker_id, const char* task_queue_name, const char* res
 int main(int argc, char *argv[]) 
 {
     int workers = 0, tasks = 0, queue_size = 0;
-    char task_queue_name[] = "/task_queue_ventilator";
+    char task_queue_name[] = "/task_queue_ventilator";  // store queue names
     char result_queue_name[] = "/result_queue_ventilator";
 
     // getopt to parse Arguments
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
         .mq_curmsgs = 0
     };
 
-    // Clean up any old queues
+    // Clean up any old queues  (to prevent errors when running again)
     mq_unlink(task_queue_name);
     mq_unlink(result_queue_name);
 
@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
     {
         struct message msg = {0};
         msg.type = MSG_TYPE_TASK;
-        msg.task.effort = (rand() % 10) + 1;    // random effort (1-10)
+        msg.task.effort = (rand() % 10) + 1;
 
         printf("Ventilator | Queuing task #%d with effort %d\n", i, msg.task.effort);
         mq_send(task_queue, (const char*)&msg, sizeof(msg), 0);
